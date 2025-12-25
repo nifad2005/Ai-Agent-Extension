@@ -171,7 +171,7 @@ genioFloatingButton.addEventListener('click', () => {
 
 
 // Chat logic for the floating chat window
-document.addEventListener('DOMContentLoaded', () => {
+// Chat logic for the floating chat window
     const floatingChatMessages = document.getElementById('floating-chat-messages');
     const floatingChatInput = document.getElementById('floating-chat-input');
     const floatingSendButton = document.getElementById('floating-send-button');
@@ -277,4 +277,3 @@ document.addEventListener('DOMContentLoaded', () => {
     if (chatHistory.length === 0) {
         displayMessage("Hello! I'm your Genio AI assistant. How can I help you today?", 'ai');
     }
-});
