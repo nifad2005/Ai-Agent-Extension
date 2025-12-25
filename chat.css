@@ -1,145 +1,378 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap'); /* Added 300 and 500 weights */
+
+:root {
+    --primary-color: #6200ea; /* Deep Purple */
+    --primary-light: #bb86fc; /* Lighter Purple */
+    --accent-color: #03dac6; /* Teal */
+    --background-light: #f5f5f5; /* Light Grey background */
+    --background-dark: #e0e0e0; /* Slightly darker grey */
+    --surface-color: #ffffff; /* White surface for elements */
+    --text-dark: #212121; /* Dark text */
+    --text-medium: #424242; /* Medium text */
+    --text-light: #f5f5f5; /* Light text */
+    --border-color: rgba(0, 0, 0, 0.1); /* Subtle border */
+    --shadow-light: 0 4px 10px rgba(0, 0, 0, 0.08); /* Adjusted shadow intensity */
+    --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.15); /* Adjusted shadow intensity */
+    --min-textarea-height: 30px; /* Minimum height for the auto-expanding textarea */
+}
+
+/* Dark Mode Overrides */
+[data-theme='dark'] {
+    --primary-color: #bb86fc; /* Lighter primary for dark mode */
+    --primary-light: #9e46f2; /* Deeper light primary */
+    --accent-color: #03dac6; /* Teal accent remains */
+    --background-light: #121212; /* Dark background */
+    --background-dark: #1f1f1f; /* Slightly lighter dark background */
+    --surface-color: #2c2c2c; /* Dark surface for elements */
+    --text-dark: #e0e0e0; /* Light text for dark mode */
+    --text-medium: #bbbbbb; /* Medium light text */
+    --text-light: #121212; /* Dark text on light elements (e.g. for primary-color button) */
+    --border-color: rgba(255, 255, 255, 0.1); /* Subtle light border */
+    --shadow-light: 0 4px 10px rgba(0, 0, 0, 0.3);
+    --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
 
 body {
     font-family: 'Roboto', sans-serif;
+    color: var(--text-dark); /* Use defined text color */
 }
 
-#my-floating-button {
-    transition: transform 0.2s ease-in-out;
+.genio-floating-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px; /* Slightly larger */
+    height: 60px; /* Slightly larger */
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border: none;
     border-radius: 50%;
+    font-size: 28px; /* Larger icon */
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-medium);
+    z-index: 10002;
+    transition: background-color 0.3s ease, transform 0.2s ease-in-out, box-shadow 0.3s ease;
+    animation: pulse 2s infinite cubic-bezier(0.66, 0, 0, 1); /* Add subtle pulse animation */
 }
 
-#my-floating-button:hover {
-    transform: scale(1.1);
+.genio-floating-button:hover {
+    background-color: var(--primary-light);
+    transform: scale(1.05) translateY(-2px); /* Slight lift and scale */
+    box-shadow: 0 0 15px rgba(var(--primary-light), 0.7), 0 12px 30px rgba(0, 0, 0, 0.3); /* Enhanced glow + shadow */
 }
 
+/* Redefine pulse animation for a more subtle effect */
 @keyframes pulse {
     0% {
-        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+        box-shadow: 0 0 0 0 rgba(var(--primary-color), 0.7);
     }
     70% {
-        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+        box-shadow: 0 0 0 15px rgba(var(--primary-color), 0);
     }
     100% {
-        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+        box-shadow: 0 0 0 0 rgba(var(--primary-color), 0);
     }
 }
 
-#chat-window {
+#floating-chat-window {
   position: fixed;
   bottom: 90px;
   right: 20px;
-  width: 350px;
-  height: 450px;
-  background-color: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  width: 380px; /* Slightly wider */
+  height: 500px; /* Slightly taller */
+  background: rgba(255, 255, 255, 0.8); /* Glassmorphism background */
+  backdrop-filter: blur(16px); /* Glassmorphism blur effect */
+  -webkit-backdrop-filter: blur(16px); /* For Safari */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border for glass effect */
+  border-radius: 18px; /* More rounded corners */
+  box-shadow: var(--shadow-medium);
   visibility: hidden;
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(20px) scale(0.95); /* Slight scale down on close */
   flex-direction: column;
-  z-index: 10000;
+  z-index: 10001;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1.0); /* Smoother curve */
 }
 
-#chat-window.chat-window-open {
+#floating-chat-window.open {
   visibility: visible;
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
-#chat-titlebar {
-  background: rgba(255, 255, 255, 0.2);
-  color: #000;
-  padding: 15px;
-  font-weight: bold;
-  cursor: move;
-  border-top-left-radius: 15px;
-  border-top-right-radius: 15px;
-  text-align: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+#floating-chat-titlebar {
+  display: flex; /* Use flexbox for alignment */
+  align-items: center;
+  justify-content: space-between; /* Space out items */
+  background: rgba(255, 255, 255, 0.4); /* Lighter header for glassmorphism */
+  color: var(--text-dark); /* Darker text for contrast on lighter header */
+  padding: 10px 15px; /* Adjusted padding */
+  font-weight: 500;
+  font-size: 1.1em;
+  text-align: left; /* Align text to left */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Subtle bottom border */
+  cursor: grab;
+  box-shadow: var(--shadow-light);
 }
 
-#chat-messages {
+#floating-chat-titlebar .online-status-dot {
+    width: 10px;
+    height: 10px;
+    background-color: #28a745; /* Green for online */
+    border-radius: 50%;
+    margin-right: 8px;
+    box-shadow: 0 0 5px #28a745; /* Subtle glow */
+}
+
+#floating-chat-titlebar .ai-name {
+    flex-grow: 1; /* Take up available space */
+    font-weight: 600; /* Slightly bolder for name */
+    font-size: 1em;
+    color: var(--text-dark);
+}
+
+#floating-chat-titlebar .header-buttons {
+    display: flex;
+    gap: 5px; /* Space between buttons */
+}
+
+#floating-chat-titlebar .header-buttons button {
+    background: none;
+    border: none;
+    color: var(--text-medium);
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 5px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#floating-chat-titlebar .header-buttons button:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: var(--text-dark);
+}
+
+#floating-chat-messages {
   flex-grow: 1;
-  padding: 15px;
+  padding: 15px 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px; /* Slightly less gap */
+  background-color: var(--background-light); /* Light background for messages area */
 }
 
-#chat-input-container {
-  padding: 15px;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+/* Custom Scrollbar Styling */
+#floating-chat-messages::-webkit-scrollbar {
+  width: 8px;
 }
 
-#chat-input {
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 20px;
-  padding: 10px 15px;
-  font-size: 14px;
-  box-sizing: border-box;
-  transition: border-color 0.2s;
-  color: #000;
+#floating-chat-messages::-webkit-scrollbar-track {
+  background: var(--background-light);
+  border-radius: 10px;
 }
 
-#chat-input:focus {
+#floating-chat-messages::-webkit-scrollbar-thumb {
+  background: var(--primary-light);
+  border-radius: 10px;
+  border: 2px solid var(--background-light); /* Adds a border to make it thinner visually */
+}
+
+#floating-chat-messages::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+}
+
+#floating-chat-input-container {
+  padding: 15px 20px;
+  background-color: var(--surface-color);
+  border-top: 1px solid var(--border-color);
+  box-shadow: var(--shadow-light); /* Subtle shadow at the top */
+  display: flex; /* Ensure the send button aligns */
+  align-items: flex-end; /* Align send button with input */
+  gap: 10px; /* Space between input wrapper and send button */
+}
+
+.rich-input-wrapper {
+    flex-grow: 1; /* Take up available space */
+    display: flex;
+    align-items: flex-end; /* Align textarea and icons */
+    background-color: var(--background-light);
+    border: 1px solid var(--border-color);
+    border-radius: 25px; /* Consistent roundedness */
+    padding: 8px 10px; /* Padding inside the wrapper */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#floating-chat-input {
+  flex-grow: 1; /* Textarea takes most space */
+  background: transparent; /* No background for textarea itself */
+  border: none; /* No border for textarea itself */
+  outline: none;
+  resize: none; /* Disable manual resizing */
+  padding: 4px 8px; /* Inner padding for text */
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--text-dark);
+  min-height: 20px; /* Base height for 1 row */
+  max-height: 100px; /* Limit auto-expansion to ~4-5 lines */
+  overflow-y: auto; /* Enable scroll if max-height exceeded */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Hide scrollbar for Chrome, Safari, Opera */
+#floating-chat-input::-webkit-scrollbar {
+    display: none;
+}
+
+.rich-input-wrapper:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-color), 0.2);
+    background-color: var(--surface-color);
+}
+
+.action-icons {
+    display: flex;
+    gap: 5px; /* Space between action buttons */
+    margin-left: 5px; /* Space from textarea */
+}
+
+.action-button {
+    background: none;
+    border: none;
+    color: var(--text-medium);
+    font-size: 1.2em; /* Icon size */
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    width: 30px; /* Fixed width for button */
+    height: 30px; /* Fixed height for button */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-button:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+    color: var(--primary-color);
+}
+
+#floating-send-button {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border: none;
+    border-radius: 25px; /* More rounded */
+    padding: 10px 18px; /* Adjusted padding */
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
     outline: none;
-    border-color: rgba(0, 0, 0, 0.5);
+    line-height: 1.4; /* Ensure text fits well */
 }
 
-.chat-message {
+#floating-send-button:hover {
+    background-color: var(--primary-light);
+}
+
+.message-bubble {
   padding: 12px 18px;
-  border-radius: 18px;
-  max-width: 85%;
+  border-radius: 18px; /* Uniformly rounded bubbles */
+  max-width: 80%; /* Slightly smaller max width */
   word-wrap: break-word;
   opacity: 0;
-  transform: translateY(10px);
-  animation: fadeIn 0.3s forwards;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  transform: translateY(15px); /* More pronounced entry effect */
+  animation: messageEntry 0.4s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Springy entry */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08); /* Subtle bubble shadow */
+  line-height: 1.5;
+  font-size: 15px; /* Explicitly set font size for readability */
+  font-weight: 400; /* Ensure consistent font weight */
+  color: var(--text-dark); /* Default text color for messages, overridden for user messages */
 }
 
-@keyframes fadeIn {
+/* New keyframes for message entry */
+@keyframes messageEntry {
+    from {
+        opacity: 0;
+        transform: translateY(15px) scale(0.95);
+    }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 }
 
-.user {
-  background-color: rgba(0, 123, 255, 0.5);
-  color: white;
+.user-message {
+  background-color: var(--primary-color);
+  color: var(--text-light); /* Explicitly set text color for contrast */
   align-self: flex-end;
-  border-bottom-right-radius: 5px;
+  border-bottom-right-radius: 4px; /* Slightly less rounded on the bottom-right for user messages */
 }
 
-.ai {
-  background-color: rgba(255, 255, 255, 0.3);
-  color: #000;
+.ai-message {
+  background-color: var(--surface-color); /* Changed from background-light to surface-color */
+  color: var(--text-dark);
   align-self: flex-start;
-  border-bottom-left-radius: 5px;
+  /* Removed border-bottom-left-radius override for more uniform look */
+  position: relative; /* Needed for absolute positioning of actions */
+}
+
+/* AI Message Actions */
+.ai-message-actions {
+    position: absolute;
+    bottom: -10px; /* Position below the bubble */
+    left: 0;
+    transform: translateY(100%); /* Start off-screen */
+    opacity: 0;
+    display: flex;
+    gap: 5px;
+    background-color: rgba(var(--text-dark), 0.8); /* Dark semi-transparent background */
+    padding: 4px 8px;
+    border-radius: 8px;
+    z-index: 10; /* Ensure it's above other elements */
+    transition: all 0.2s ease-out; /* Smooth transition */
+}
+
+.ai-message-actions .action-icon-button {
+    background: none;
+    border: none;
+    color: var(--text-light); /* Light text on dark background */
+    font-size: 0.9em;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.ai-message-actions .action-icon-button:hover {
+    background-color: rgba(var(--text-light), 0.2);
+    color: var(--accent-color); /* Highlight with accent color */
+}
+
+.message.ai-message:hover .ai-message-actions {
+    opacity: 1;
+    transform: translateY(0); /* Slide into view */
 }
 
 .typing-indicator {
     display: flex;
     align-items: center;
     padding: 12px 18px;
+    align-self: flex-start; /* Align with AI messages */
+    background-color: var(--surface-color); /* Changed from background-light to surface-color */
+    border-radius: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
 }
 
 .typing-indicator span {
     height: 8px;
     width: 8px;
-    background-color: #000;
+    background-color: var(--text-medium); /* Darker dots */
     border-radius: 50%;
     display: inline-block;
     margin: 0 2px;
@@ -160,5 +393,50 @@ body {
     }
     40% {
         transform: scale(1.0);
+    }
+}
+
+/* Skeleton Loader Styles */
+.skeleton-loader-wrapper {
+    align-self: flex-start; /* Align with AI messages */
+}
+
+.skeleton-loader {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-color: var(--surface-color); /* Matches AI bubble background */
+    border-radius: 18px; /* Matches AI bubble border-radius */
+    padding: 12px 18px;
+    max-width: 80%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+
+.skeleton-line {
+    height: 12px; /* Height of a text line */
+    background: linear-gradient(90deg, var(--background-light) 25%, var(--background-dark) 50%, var(--background-light) 75%);
+    background-size: 200% 100%;
+    border-radius: 4px;
+    animation: pulse-bg 1.5s infinite;
+}
+
+.skeleton-line.short {
+    width: 60%;
+}
+
+.skeleton-line.medium {
+    width: 85%;
+}
+
+.skeleton-line.long {
+    width: 100%;
+}
+
+@keyframes pulse-bg {
+    0% {
+        background-position: -100% 0;
+    }
+    100% {
+        background-position: 100% 0;
     }
 }
