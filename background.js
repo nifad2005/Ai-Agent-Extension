@@ -129,6 +129,37 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         
         return true; // Indicates that sendResponse will be called asynchronously
     }
+
+    // Handle GENERATE_SUGGESTIONS from content.js
+    if (message.type === 'GENERATE_SUGGESTIONS') {
+        console.log('GENERATE_SUGGESTIONS received');
+        
+        const fullText = message.text;
+        const contextText = fullText.substring(0, 1500);
+        
+        // Contextual analysis for better prompting
+        const isCode = /[{};()=]/.test(contextText) && (contextText.includes('function') || contextText.includes('const') || contextText.includes('class') || contextText.includes('import') || contextText.includes('var '));
+        const isLong = fullText.length > 400;
+        
+        let instruction = "suggest 4 short, concise, and diverse follow-up questions or actions.";
+        if (isCode) {
+            instruction = "suggest 4 coding-related actions (e.g., Explain logic, Refactor, Find bugs, Convert language).";
+        } else if (isLong) {
+            instruction = "suggest 4 comprehension actions (e.g., Summarize, Key takeaways, Analyze tone, Simplify).";
+        }
+
+        const prompt = `Context: "${contextText}"\n\nTask: Based on the text above, ${instruction} Output ONLY the questions/actions, one per line, no numbering.`;
+        
+        fetchPollinationsAIResponse(prompt).then(aiResponse => {
+            if (sender.tab) {
+                chrome.tabs.sendMessage(sender.tab.id, {
+                    type: 'SUGGESTIONS_RESPONSE',
+                    text: aiResponse
+                });
+            }
+        });
+        return true;
+    }
 });
 
 // Example of an event listener for when the extension is installed

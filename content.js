@@ -71,6 +71,10 @@ style.textContent = `
         transform: translateY(0) scale(1);
     }
 
+    #floating-chat-window * {
+        box-sizing: border-box;
+    }
+
     /* Minimized State */
     #floating-chat-window.minimized {
         height: auto !important;
@@ -206,32 +210,44 @@ style.textContent = `
     }
 
     #floating-chat-input-container {
-        display: flex;
-        align-items: flex-end;
-        padding: 16px;
+        padding: 12px;
         background-color: white;
         border-top: 1px solid rgba(0, 0, 0, 0.05);
+        width: 100%;
+    }
+
+    .genio-input-wrapper {
+        display: flex;
+        align-items: flex-end;
+        width: 100%;
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 10px;
+        transition: all 0.2s ease;
+    }
+
+    .genio-input-wrapper:focus-within {
+        background-color: white;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     }
 
     #floating-chat-input {
         flex-grow: 1;
-        border: 1px solid #e5e7eb;
-        border-radius: 24px;
-        padding: 12px 16px;
+        border: none;
+        padding: 8px 12px;
         font-size: 14px;
-        margin-right: 12px;
         outline: none;
-        background-color: #f9fafb;
-        transition: border-color 0.2s, box-shadow 0.2s;
+        background-color: transparent;
         resize: none;
         max-height: 100px;
         font-family: inherit;
+        line-height: 1.5;
     }
 
     #floating-chat-input:focus {
-        border-color: #6366f1;
-        background-color: white;
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        box-shadow: none;
     }
 
     #floating-send-button {
@@ -239,8 +255,8 @@ style.textContent = `
         color: white;
         border: none;
         border-radius: 50%;
-        width: 42px;
-        height: 42px;
+        width: 36px;
+        height: 36px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -251,6 +267,8 @@ style.textContent = `
         padding: 0;
         position: relative;
         overflow: hidden;
+        flex-shrink: 0;
+        margin-left: 8px;
     }
 
     #floating-send-button::before {
@@ -405,14 +423,19 @@ style.textContent = `
         border-top-color: rgba(255, 255, 255, 0.1);
     }
     
-    #floating-chat-window[data-theme='dark'] #floating-chat-input {
+    #floating-chat-window[data-theme='dark'] .genio-input-wrapper {
         background-color: #374151;
         border-color: #4b5563;
-        color: white;
     }
-    
-    #floating-chat-window[data-theme='dark'] #floating-chat-input:focus {
+
+    #floating-chat-window[data-theme='dark'] .genio-input-wrapper:focus-within {
         border-color: #6366f1;
+        background-color: #1f2937;
+    }
+
+    #floating-chat-window[data-theme='dark'] #floating-chat-input {
+        background-color: transparent;
+        color: white;
     }
     
     #floating-chat-window[data-theme='dark'] .genio-typing-indicator.genio-message-bubble, 
@@ -429,6 +452,263 @@ style.textContent = `
         background: linear-gradient(120deg, rgba(31, 41, 55, 0.9) 30%, rgba(55, 65, 81, 0.9) 50%, rgba(31, 41, 55, 0.9) 70%);
         background-size: 200% 100%;
     }
+
+    .genio-context-quote {
+        font-size: 11px;
+        opacity: 0.9;
+        border-left: 3px solid rgba(255,255,255,0.3);
+        padding: 4px 8px;
+        margin-bottom: 6px;
+        white-space: pre-wrap;
+        max-height: 60px;
+        overflow: hidden;
+        background: rgba(0,0,0,0.1);
+        border-radius: 4px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+
+    /* Context Preview Area */
+    #floating-chat-context-preview {
+        display: none;
+        padding: 12px 16px 4px 16px;
+        background-color: white;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        flex-wrap: wrap;
+        gap: 8px;
+        animation: fadeIn 0.2s ease;
+    }
+    
+    #floating-chat-context-preview.visible {
+        display: flex;
+    }
+
+    .genio-context-chip {
+        background: linear-gradient(120deg, #e0e7ff 30%, #ffffff 50%, #e0e7ff 70%);
+        background-size: 200% 100%;
+        animation: genio-shimmer 3s infinite linear;
+        color: #4338ca;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 6px 10px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        max-width: 100%;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .genio-context-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 220px;
+    }
+
+    .genio-context-close {
+        background: none;
+        border: none;
+        color: #4338ca;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.6;
+        line-height: 1;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        transition: all 0.2s;
+    }
+
+    .genio-context-close:hover {
+        opacity: 1;
+        background-color: rgba(0,0,0,0.05);
+    }
+
+    /* Adjust input container when context is visible */
+    #floating-chat-context-preview.visible + #floating-chat-input-container {
+        border-top: none;
+        padding-top: 4px;
+    }
+    
+    /* Dark mode for context */
+    #floating-chat-window[data-theme='dark'] #floating-chat-context-preview {
+        background-color: #1f2937;
+        border-top-color: rgba(255, 255, 255, 0.1);
+    }
+
+    #floating-chat-window[data-theme='dark'] .genio-context-chip {
+        background: linear-gradient(120deg, #374151 30%, #4b5563 50%, #374151 70%);
+        background-size: 200% 100%;
+        color: #e0e7ff;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    #floating-chat-window[data-theme='dark'] .genio-context-close {
+        color: #e0e7ff;
+    }
+    
+    #floating-chat-window[data-theme='dark'] .genio-context-close:hover {
+        background-color: rgba(255,255,255,0.1);
+    }
+
+    /* Suggestions Area */
+    #floating-chat-suggestions {
+        display: none;
+        padding: 4px 8px;
+        background-color: transparent;
+        gap: 4px;
+        flex-direction: column;
+        overflow-y: auto;
+        max-height: 90px;
+        animation: fadeIn 0.2s ease;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 0;
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+
+    #floating-chat-suggestions::-webkit-scrollbar {
+        width: 4px;
+        display: block;
+    }
+    
+    #floating-chat-suggestions::-webkit-scrollbar-thumb {
+        background-color: rgba(0,0,0,0.1);
+        border-radius: 4px;
+    }
+
+    #floating-chat-suggestions.visible {
+        display: flex;
+    }
+
+    /* Adjust borders when stacked */
+    #floating-chat-context-preview.visible + #floating-chat-input-container {
+        border-top: none;
+        padding-top: 4px;
+    }
+
+    .genio-suggestion-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #f3f4f6;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        width: 100%;
+        transition: all 0.2s;
+    }
+
+    .genio-suggestion-item:hover {
+        background-color: #e0e7ff;
+        border-color: #c7d2fe;
+    }
+
+    .genio-suggestion-text {
+        flex-grow: 1;
+        padding: 4px 8px;
+        font-size: 10px;
+        color: #4b5563;
+        cursor: pointer;
+        text-align: left;
+        background: none;
+        border: none;
+        font-family: inherit;
+        white-space: normal;
+        line-height: 1.2;
+    }
+    
+    .genio-suggestion-text:hover {
+        color: #4338ca;
+    }
+
+    .genio-suggestion-action {
+        padding: 4px 8px;
+        cursor: pointer;
+        color: #6366f1;
+        font-size: 10px;
+        background: none;
+        border: none;
+        border-left: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s;
+        border-top-right-radius: 6px;
+        border-bottom-right-radius: 6px;
+    }
+
+    .genio-suggestion-action:hover {
+        background-color: rgba(99, 102, 241, 0.1);
+    }
+
+    /* Dark mode for suggestions */
+    #floating-chat-window[data-theme='dark'] #floating-chat-suggestions {
+        background-color: transparent;
+    }
+
+    #floating-chat-window[data-theme='dark'] .genio-suggestion-item {
+        background-color: #374151;
+        border-color: #4b5563;
+    }
+
+    #floating-chat-window[data-theme='dark'] .genio-suggestion-item:hover {
+        background-color: #4b5563;
+        border-color: #6b7280;
+    }
+    
+    #floating-chat-window[data-theme='dark'] .genio-suggestion-text {
+        color: #d1d5db;
+    }
+    
+    #floating-chat-window[data-theme='dark'] .genio-suggestion-text:hover {
+        color: white;
+    }
+
+    #floating-chat-window[data-theme='dark'] .genio-suggestion-action {
+        border-left-color: rgba(255,255,255,0.1);
+        color: #818cf8;
+    }
+
+    #floating-chat-window[data-theme='dark'] .genio-suggestion-action:hover {
+        background-color: rgba(255,255,255,0.1);
+    }
+
+    /* Selection Popup */
+    #genio-selection-popup {
+        position: absolute;
+        z-index: 2147483647;
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        transform: translate(-50%, -10px);
+        opacity: 0;
+        animation: fadeIn 0.2s forwards;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    
+    #genio-selection-popup::after {
+        content: '';
+        position: absolute;
+        bottom: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 6px 6px 0;
+        border-style: solid;
+        border-color: #4f46e5 transparent transparent transparent;
+    }
 `;
 document.head.appendChild(style);
 
@@ -444,9 +724,13 @@ const floatingChatWindowHTML = `
             </div>
         </div>
         <div id="floating-chat-messages"></div>
+        <div id="floating-chat-suggestions"></div>
+        <div id="floating-chat-context-preview"></div>
         <div id="floating-chat-input-container">
+            <div class="genio-input-wrapper">
                 <textarea id="floating-chat-input" placeholder="Type your message..." rows="1"></textarea>
-            <button id="floating-send-button">Send</button>
+                <button id="floating-send-button">Send</button>
+            </div>
         </div>
     </div>
 `;
@@ -534,6 +818,98 @@ systemThemeQuery.addEventListener('change', (e) => {
     const floatingChatMessages = document.getElementById('floating-chat-messages');
     const floatingChatInput = document.getElementById('floating-chat-input');
     const floatingSendButton = document.getElementById('floating-send-button');
+    const floatingChatContextPreview = document.getElementById('floating-chat-context-preview');
+    const floatingChatSuggestions = document.getElementById('floating-chat-suggestions');
+
+    let activeContexts = [];
+
+    const addContext = (text) => {
+        activeContexts.push(text);
+        
+        const chip = document.createElement('div');
+        chip.className = 'genio-context-chip';
+        chip.innerHTML = `
+            <span class="genio-context-text">${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>
+            <button class="genio-context-close" title="Remove context">×</button>
+        `;
+        
+        chip.querySelector('.genio-context-close').addEventListener('click', () => {
+            const index = activeContexts.indexOf(text);
+            if (index > -1) activeContexts.splice(index, 1);
+            chip.remove();
+            if (activeContexts.length === 0) {
+                floatingChatContextPreview.classList.remove('visible');
+            }
+            updateSuggestions();
+        });
+
+        floatingChatContextPreview.appendChild(chip);
+        floatingChatContextPreview.classList.add('visible');
+        updateSuggestions();
+    };
+
+    const createSuggestionChip = (text) => {
+        const item = document.createElement('div');
+        item.className = 'genio-suggestion-item';
+
+        const textBtn = document.createElement('button');
+        textBtn.className = 'genio-suggestion-text';
+        textBtn.textContent = text;
+        textBtn.title = "Click to send";
+        textBtn.addEventListener('click', () => sendMessage(text));
+
+        const actionBtn = document.createElement('button');
+        actionBtn.className = 'genio-suggestion-action';
+        actionBtn.innerHTML = '✎'; // Edit icon
+        actionBtn.title = "Edit in input";
+        actionBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            floatingChatInput.value = text;
+            floatingChatInput.style.height = 'auto';
+            floatingChatInput.style.height = floatingChatInput.scrollHeight + 'px';
+            floatingChatInput.focus();
+        });
+        
+        item.appendChild(textBtn);
+        item.appendChild(actionBtn);
+        return item;
+    };
+
+    const updateSuggestions = () => {
+        floatingChatSuggestions.innerHTML = '';
+        
+        if (activeContexts.length > 0) {
+            const combinedText = activeContexts.join('\n\n');
+            
+            // Immediate Contextual Suggestions
+            if (combinedText.length > 300) {
+                floatingChatSuggestions.appendChild(createSuggestionChip("Summarize this"));
+                floatingChatSuggestions.appendChild(createSuggestionChip("Key Takeaways"));
+            }
+            
+            if (/[{};()=]/.test(combinedText) && (combinedText.includes('function') || combinedText.includes('const') || combinedText.includes('class ') || combinedText.includes('import '))) {
+                floatingChatSuggestions.appendChild(createSuggestionChip("Explain this code"));
+            }
+
+            const loadingItem = document.createElement('div');
+            loadingItem.className = 'genio-suggestion-item';
+            loadingItem.id = 'genio-suggestion-loading';
+            loadingItem.innerHTML = `<span class="genio-suggestion-text" style="cursor: default; opacity: 0.7;">✨ Thinking...</span>`;
+            floatingChatSuggestions.appendChild(loadingItem);
+            
+            floatingChatSuggestions.classList.add('visible');
+            chrome.runtime.sendMessage({ type: 'GENERATE_SUGGESTIONS', text: combinedText });
+        } else {
+            floatingChatSuggestions.classList.remove('visible');
+        }
+    };
+
+    const clearAllContexts = () => {
+        activeContexts = [];
+        floatingChatContextPreview.innerHTML = '';
+        floatingChatContextPreview.classList.remove('visible');
+        updateSuggestions();
+    };
 
     let chatHistory = [];
 
@@ -624,13 +1000,17 @@ systemThemeQuery.addEventListener('change', (e) => {
     // --- End Combined Loading Indicator Management ---
 
     // Display a message in the chat window
-    const displayMessage = (text, sender) => {
+    const displayMessage = (text, sender, isHtml = false) => {
         const messageElement = document.createElement('div');
         messageElement.classList.add('genio-message', `genio-${sender}-message`);
 
         const messageBubble = document.createElement('div');
         messageBubble.classList.add('genio-message-bubble');
-        messageBubble.textContent = text;
+        if (isHtml) {
+            messageBubble.innerHTML = text;
+        } else {
+            messageBubble.textContent = text;
+        }
 
         messageElement.appendChild(messageBubble);
         floatingChatMessages.appendChild(messageElement);
@@ -662,14 +1042,42 @@ systemThemeQuery.addEventListener('change', (e) => {
     // --- End Input Area JS Logic ---
 
     // Send a message
-    const sendMessage = async () => {
-        const messageText = floatingChatInput.value.trim();
-        if (messageText === '') return;
+    const sendMessage = async (text = null) => {
+        const inputVal = floatingChatInput.value.trim();
+        const userQuery = text || inputVal;
+
+        if (!userQuery && activeContexts.length === 0) return;
+        
+        let parts = [];
+        let displayParts = [];
+
+        if (activeContexts.length > 0) {
+            activeContexts.forEach((ctx, i) => {
+                parts.push(`Context ${i + 1}:\n${ctx}`);
+                const safeCtx = ctx.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                displayParts.push(`<div class="genio-context-quote"><strong>Context:</strong> ${safeCtx}</div>`);
+            });
+        }
+        if (userQuery) {
+            parts.push(userQuery);
+            const safeQuery = userQuery.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            displayParts.push(`<div>${safeQuery}</div>`);
+        }
+        
+        const messageToSend = parts.join('\n\n');
+        const messageToDisplay = displayParts.join('');
 
         // Display user message
-        displayMessage(messageText, 'user');
-        chatHistory.push({ text: messageText, sender: 'user' });
-        floatingChatInput.value = ''; // Clear input
+        displayMessage(messageToDisplay, 'user', true);
+        chatHistory.push({ text: messageToSend, sender: 'user' });
+        
+        if (!text) {
+            floatingChatInput.value = ''; // Clear input only if typed
+            floatingChatInput.style.height = 'auto'; // Reset height
+        }
+        
+        // Clear context after sending regardless of input method
+        if (activeContexts.length > 0) clearAllContexts();
 
         // Show loading indicator(s)
         showAILoadingIndicator();
@@ -681,7 +1089,7 @@ systemThemeQuery.addEventListener('change', (e) => {
         }, 10000); // 10 seconds timeout
 
         // Send user message to background script for AI processing
-        chrome.runtime.sendMessage({ type: 'CHAT_MESSAGE', text: messageText }, (response) => {
+        chrome.runtime.sendMessage({ type: 'CHAT_MESSAGE', text: messageToSend }, (response) => {
             clearTimeout(responseTimeout); // Clear the timeout if a response is received
 
             if (chrome.runtime.lastError) {
@@ -696,9 +1104,10 @@ systemThemeQuery.addEventListener('change', (e) => {
     };
 
     // Event listeners for chat input and send button
-    floatingSendButton.addEventListener('click', sendMessage);
+    floatingSendButton.addEventListener('click', () => sendMessage());
     floatingChatInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
             sendMessage();
         }
     });
@@ -721,6 +1130,21 @@ systemThemeQuery.addEventListener('change', (e) => {
             scrollToBottom();
             sendResponse({ status: "Summary displayed in floating chat" });
             return true;
+        } else if (message.type === 'SUGGESTIONS_RESPONSE') {
+            if (activeContexts.length > 0) {
+                const loader = document.getElementById('genio-suggestion-loading');
+                if (loader) loader.remove();
+                
+                const lines = message.text.split('\n');
+                const existingTexts = Array.from(floatingChatSuggestions.querySelectorAll('.genio-suggestion-text')).map(el => el.textContent);
+                
+                lines.forEach(line => {
+                    const cleanLine = line.replace(/^[\d\-\.\)\s]+/, '').trim();
+                    if (cleanLine && cleanLine.length < 100 && !cleanLine.toLowerCase().startsWith('error') && !existingTexts.includes(cleanLine)) {
+                        floatingChatSuggestions.appendChild(createSuggestionChip(cleanLine));
+                    }
+                });
+            }
         }
     });
 
@@ -736,3 +1160,65 @@ systemThemeQuery.addEventListener('change', (e) => {
     if (chatHistory.length === 0) {
         displayMessage("Hello! I'm your Genio AI assistant. How can I help you today?", 'ai');
     }
+
+    // --- Selection Popup Logic ---
+    document.addEventListener('mouseup', (e) => {
+        const existingBtn = document.getElementById('genio-selection-popup');
+
+        // If clicking on the popup button itself, ignore this event to allow the click handler to run
+        if (existingBtn && existingBtn.contains(e.target)) return;
+
+        // Don't show if clicking inside chat window or on the floating button
+        if (floatingChatWindow.contains(e.target) || genioFloatingButton.contains(e.target)) return;
+
+        const selection = window.getSelection();
+        const selectedText = selection.toString().trim();
+
+        if (existingBtn) existingBtn.remove();
+
+        if (selectedText.length > 0) {
+            const btn = document.createElement('button');
+            btn.id = 'genio-selection-popup';
+            btn.textContent = 'Ask Genio';
+            
+            const range = selection.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            
+            // Calculate position (absolute relative to document)
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+            
+            btn.style.top = `${rect.top + scrollTop - 45}px`; // Position above selection
+            btn.style.left = `${rect.left + scrollLeft + (rect.width / 2)}px`; // Center horizontally
+            
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                // Open chat if closed
+                if (!isChatWindowOpen) {
+                    isChatWindowOpen = true;
+                    floatingChatWindow.classList.add('open');
+                }
+                // Restore if minimized
+                if (floatingChatWindow.classList.contains('minimized')) {
+                    floatingChatWindow.classList.remove('minimized');
+                    minimizeButton.textContent = '−';
+                    minimizeButton.title = 'Minimize';
+                }
+
+                addContext(selectedText);
+                floatingChatInput.focus();
+                btn.remove();
+                window.getSelection().removeAllRanges();
+            });
+
+            document.body.appendChild(btn);
+        }
+    });
+
+    document.addEventListener('mousedown', (e) => {
+        const btn = document.getElementById('genio-selection-popup');
+        if (btn && !btn.contains(e.target)) {
+            btn.remove();
+        }
+    });
