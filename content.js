@@ -3,174 +3,292 @@ const style = document.createElement('style');
 style.textContent = `
     .genio-floating-button {
         position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 50px;
-        height: 50px;
-        background-color: #4a4ae6; /* Indigo */
+        bottom: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #6366f1, #4f46e5); /* Modern Indigo Gradient */
         color: white;
         border: none;
         border-radius: 50%;
-        font-size: 24px;
+        font-size: 28px;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        z-index: 10002; /* Above chat window */
-        transition: background-color 0.3s ease;
+        box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
+        z-index: 2147483647;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+        overflow: hidden;
     }
 
-        background-color: #6f6ffc; /* Lighter Indigo on hover */
+    .genio-floating-button::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transform: skewX(-20deg);
+        animation: genio-shine 6s infinite;
+    }
+
+    .genio-floating-button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 15px 35px rgba(79, 70, 229, 0.5);
+    }
 
     /* Styles for the floating chat window */
     #floating-chat-window {
         position: fixed;
-        bottom: 90px; /* Above the floating button */
-        right: 20px;
-        width: 350px;
-        height: 450px;
-        backdrop-filter: blur(16px); /* Glassmorphism effect */
-        background: rgba(255, 255, 255, 0.8); /* Glassmorphism effect */
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        z-index: 10001;
+        bottom: 100px;
+        right: 30px;
+        width: 380px;
+        height: 600px;
+        max-height: 80vh;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        z-index: 2147483646;
         display: flex;
         flex-direction: column;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: #333;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: #1f2937;
         overflow: hidden;
         visibility: hidden; /* Start hidden */
         opacity: 0;
-        transition: visibility 0.3s, opacity 0.3s ease;
+        transform: translateY(20px) scale(0.95);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     #floating-chat-window.open {
         visibility: visible;
         opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    /* Minimized State */
+    #floating-chat-window.minimized {
+        height: auto !important;
+        min-height: 0;
+        background: linear-gradient(120deg, rgba(255,255,255,0.85) 30%, rgba(255,255,255,0.98) 50%, rgba(255,255,255,0.85) 70%);
+        background-size: 200% 100%;
+        animation: genio-shimmer 3s infinite linear;
+        cursor: pointer;
+    }
+    
+    #floating-chat-window.minimized #floating-chat-messages,
+    #floating-chat-window.minimized #floating-chat-input-container {
+        display: none;
+    }
+
+    /* Title Bar */
+    #floating-chat-titlebar {
+        padding: 16px 20px;
+        background: rgba(255, 255, 255, 0.8);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: 600;
+        font-size: 16px;
+        color: #111827;
+    }
+
+    .genio-online-status-dot {
+        height: 8px;
+        width: 8px;
+        background-color: #10b981;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        animation: genio-pulse-green 2s infinite;
+    }
+
+    @keyframes genio-pulse-green {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        }
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0);
+        }
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+        }
+    }
+
+    .genio-header-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .genio-header-buttons button {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        color: #6b7280;
+        font-size: 20px;
+        line-height: 1;
+    }
+    
+    .genio-minimize-button:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+        color: #111827;
+    }
+
+    .genio-close-button:hover {
+        background-color: #ef4444;
+        color: white;
     }
 
     #floating-chat-messages {
         flex-grow: 1;
-        padding: 10px;
+        padding: 20px;
         overflow-y: auto;
         background-color: transparent; /* Changed to transparent for glassmorphism */
-        border-bottom: 1px solid rgba(200, 200, 200, 0.5); /* Lighter border */
+        scroll-behavior: smooth;
     }
 
-    .message {
+    .genio-message {
         display: flex;
-        margin-bottom: 10px;
+        margin-bottom: 16px;
+        animation: fadeIn 0.3s ease;
     }
 
-    .user-message {
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .genio-user-message {
         justify-content: flex-end;
     }
 
-    .ai-message {
+    .genio-ai-message {
         justify-content: flex-start;
     }
 
-    .message-bubble {
-        max-width: 70%;
-        padding: 8px 12px;
+    .genio-message-bubble {
+        max-width: 80%;
+        padding: 12px 16px;
         border-radius: 18px;
-        line-height: 1.4;
+        line-height: 1.5;
+        font-size: 14px;
         word-wrap: break-word;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
 
-    .user-message .message-bubble {
-        background-color: #3b3bb3; /* Darker Indigo */
+    .genio-user-message .genio-message-bubble {
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
         color: white;
-        border-radius: 20px;
         border-bottom-right-radius: 4px;
     }
 
-    .ai-message .message-bubble {
-        background-color: #f0f0f0; /* Very Light Gray */
-        color: #333; /* Dark Gray */
-        border-radius: 20px;
+    .genio-ai-message .genio-message-bubble {
+        background-color: #f3f4f6;
+        color: #1f2937;
         border-bottom-left-radius: 4px;
     }
 
     #floating-chat-input-container {
         display: flex;
-        padding: 10px;
-        background-color: transparent; /* Changed to transparent */
-        border-top: 1px solid rgba(200, 200, 200, 0.5); /* Lighter border */
+        align-items: flex-end;
+        padding: 16px;
+        background-color: white;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
     }
 
     #floating-chat-input {
         flex-grow: 1;
-        border: 1px solid #ced4da;
-        border-radius: 20px;
-        padding: 8px 15px;
+        border: 1px solid #e5e7eb;
+        border-radius: 24px;
+        padding: 12px 16px;
         font-size: 14px;
-        margin-right: 10px;
+        margin-right: 12px;
         outline: none;
-        background-color: rgba(255, 255, 255, 0.8); /* Slightly transparent input */
+        background-color: #f9fafb;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        resize: none;
+        max-height: 100px;
+        font-family: inherit;
     }
 
     #floating-chat-input:focus {
-        border-color: #4a4ae6; /* Indigo focus */
-        box-shadow: 0 0 0 0.2rem rgba(74, 74, 230, 0.25); /* Indigo shadow */
+        border-color: #6366f1;
+        background-color: white;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     }
 
     #floating-send-button {
-        background-color: #4a4ae6; /* Indigo send button */
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
         color: white;
         border: none;
-        border-radius: 20px;
-        padding: 8px 15px;
+        border-radius: 50%;
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         cursor: pointer;
-        font-size: 14px;
-        transition: background-color 0.2s;
+        font-size: 0; /* Hide text, use icon via CSS or HTML */
+        transition: transform 0.2s, box-shadow 0.2s;
         outline: none;
+        padding: 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    #floating-send-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transform: skewX(-20deg);
+        transition: left 0.5s;
     }
 
     #floating-send-button:hover {
-        background-color: #6f6ffc; /* Lighter Indigo on hover */
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
     }
 
-    /* Styles for AI message actions (Copy/Regenerate) */
-    .ai-message-actions {
-        display: none; /* Hidden by default */
-        margin-left: 5px;
-        align-items: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
+    #floating-send-button:hover::before {
+        left: 100%;
     }
 
-    .ai-message:hover .ai-message-actions {
-        display: flex; /* Show on AI message hover */
-        opacity: 1;
-    }
-
-    .action-icon-button {
-        background: none;
-        border: none;
-        cursor: pointer;
+    #floating-send-button::after {
+        content: '➤';
         font-size: 16px;
-        margin: 0 2px;
-        padding: 4px;
-        border-radius: 4px;
-        transition: background-color 0.2s;
+        margin-left: 2px;
     }
-
-    .action-icon-button:hover {
-        background-color: rgba(0, 0, 0, 0.1);
-    }
-
 
     /* --- Combined Loading Indicator Management --- */
     /* Add styles for typing indicator */
-    .typing-indicator-wrapper {
+    .genio-typing-indicator-wrapper {
         justify-content: flex-start;
     }
-    .typing-indicator.message-bubble {
+    .genio-typing-indicator.genio-message-bubble {
         padding: 0 10px; /* Adjusted padding to center dots */
-        background-color: #f0f0f0; /* Ensure correct background */
-        color: #333;
+        background-color: #f3f4f6;
+        color: #6b7280;
         border-radius: 20px;
         border-bottom-left-radius: 4px;
         display: flex;
@@ -179,7 +297,7 @@ style.textContent = `
         min-width: 40px; /* Ensure indicator has a minimum width */
         height: 28px; /* Consistent height with message bubbles */
     }
-    .typing-indicator span {
+    .genio-typing-indicator span {
         width: 6px;
         height: 6px;
         margin: 0 2px;
@@ -188,10 +306,10 @@ style.textContent = `
         display: inline-block;
         animation: bubble-pulse 1.4s infinite ease-in-out both;
     }
-    .typing-indicator span:nth-child(1) {
+    .genio-typing-indicator span:nth-child(1) {
         animation-delay: -0.32s;
     }
-    .typing-indicator span:nth-child(2) {
+    .genio-typing-indicator span:nth-child(2) {
         animation-delay: -0.16s;
     }
     @keyframes bubble-pulse {
@@ -205,12 +323,12 @@ style.textContent = `
         }
     }
     /* Add styles for skeleton loader */
-    .skeleton-loader-wrapper {
+    .genio-skeleton-loader-wrapper {
         justify-content: flex-start;
     }
-    .skeleton-loader.message-bubble {
-        background-color: #f0f0f0; /* Ensure correct background */
-        color: #333;
+    .genio-skeleton-loader.genio-message-bubble {
+        background-color: #f3f4f6;
+        color: #6b7280;
         border-radius: 20px;
         border-bottom-left-radius: 4px;
         display: flex;
@@ -218,32 +336,98 @@ style.textContent = `
         padding: 8px 12px; /* Add back padding for skeleton lines */
         width: 180px; /* fixed width for skeleton */
     }
-    .skeleton-line {
+    .genio-skeleton-line {
         height: 10px;
-        background-color: #ccc;
+        background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+        background-size: 200% 100%;
         border-radius: 4px;
         margin-bottom: 6px;
-        animation: loading-pulse 1.5s infinite ease-in-out;
+        animation: genio-shimmer 1.5s infinite;
     }
-    .skeleton-line.short {
+    .genio-skeleton-line.short {
         width: 60%;
     }
-    .skeleton-line.medium {
+    .genio-skeleton-line.medium {
         width: 85%;
     }
-    .skeleton-line.long {
+    .genio-skeleton-line.long {
         width: 100%;
     }
-    @keyframes loading-pulse {
+    @keyframes genio-shimmer {
         0% {
-            opacity: 0.6;
-        }
-        50% {
-            opacity: 1;
+            background-position: 200% 0;
         }
         100% {
-            opacity: 0.6;
+            background-position: -200% 0;
         }
+    }
+
+    @keyframes genio-shine {
+        0% { left: -100%; }
+        10% { left: 100%; }
+        100% { left: 100%; }
+    }
+
+    /* Dark Mode Support */
+    #floating-chat-window[data-theme='dark'] {
+        background: rgba(31, 41, 55, 0.95);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #f9fafb;
+    }
+    
+    #floating-chat-window[data-theme='dark'] #floating-chat-titlebar {
+        background: rgba(31, 41, 55, 0.8);
+        border-bottom-color: rgba(255, 255, 255, 0.1);
+        color: #f9fafb;
+    }
+    
+    #floating-chat-window[data-theme='dark'] .genio-minimize-button {
+        color: #9ca3af;
+    }
+    
+    #floating-chat-window[data-theme='dark'] .genio-minimize-button:hover {
+        background: rgba(255,255,255,0.1);
+        color: white;
+    }
+
+    #floating-chat-window[data-theme='dark'] .genio-close-button:hover {
+        background-color: #ef4444;
+        color: white;
+    }
+
+    #floating-chat-window[data-theme='dark'] .genio-ai-message .genio-message-bubble {
+        background-color: #374151;
+        color: #f3f4f6;
+    }
+    
+    #floating-chat-window[data-theme='dark'] #floating-chat-input-container {
+        background-color: #1f2937;
+        border-top-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    #floating-chat-window[data-theme='dark'] #floating-chat-input {
+        background-color: #374151;
+        border-color: #4b5563;
+        color: white;
+    }
+    
+    #floating-chat-window[data-theme='dark'] #floating-chat-input:focus {
+        border-color: #6366f1;
+    }
+    
+    #floating-chat-window[data-theme='dark'] .genio-typing-indicator.genio-message-bubble, 
+    #floating-chat-window[data-theme='dark'] .genio-skeleton-loader.genio-message-bubble {
+        background-color: #374151;
+    }
+
+    #floating-chat-window[data-theme='dark'] .genio-skeleton-line {
+        background: linear-gradient(90deg, #4b5563 25%, #6b7280 50%, #4b5563 75%);
+        background-size: 200% 100%;
+    }
+
+    #floating-chat-window[data-theme='dark'].minimized {
+        background: linear-gradient(120deg, rgba(31, 41, 55, 0.9) 30%, rgba(55, 65, 81, 0.9) 50%, rgba(31, 41, 55, 0.9) 70%);
+        background-size: 200% 100%;
     }
 `;
 document.head.appendChild(style);
@@ -252,11 +436,11 @@ document.head.appendChild(style);
 const floatingChatWindowHTML = `
     <div id="floating-chat-window">
         <div id="floating-chat-titlebar">
-            <span class="online-status-dot"></span>
-            <span class="ai-name">Genio AI Chat</span>
-            <div class="header-buttons">
-                <button class="minimize-button">_</button>
-                <button class="close-button">X</button>
+            <span class="genio-online-status-dot"></span>
+            <span class="genio-ai-name">Genio AI Chat</span>
+            <div class="genio-header-buttons">
+                <button class="genio-minimize-button" title="Minimize">−</button>
+                <button class="genio-close-button" title="Close">×</button>
             </div>
         </div>
         <div id="floating-chat-messages"></div>
@@ -284,6 +468,37 @@ genioFloatingButton.addEventListener('click', () => {
         floatingChatWindow.classList.add('open');
     } else {
         floatingChatWindow.classList.remove('open');
+    }
+});
+
+// Close and Minimize Logic
+const closeButton = document.querySelector('.genio-close-button');
+const minimizeButton = document.querySelector('.genio-minimize-button');
+
+closeButton.addEventListener('click', () => {
+    isChatWindowOpen = false;
+    floatingChatWindow.classList.remove('open');
+    // Reset minimized state when closing so it re-opens fully
+    setTimeout(() => {
+        floatingChatWindow.classList.remove('minimized');
+        minimizeButton.textContent = '−';
+        minimizeButton.title = 'Minimize';
+    }, 300);
+});
+
+minimizeButton.addEventListener('click', () => {
+    floatingChatWindow.classList.toggle('minimized');
+    const isMinimized = floatingChatWindow.classList.contains('minimized');
+    minimizeButton.textContent = isMinimized ? '□' : '−';
+    minimizeButton.title = isMinimized ? 'Maximize' : 'Minimize';
+});
+
+// Expand on click when minimized
+floatingChatWindow.addEventListener('click', (e) => {
+    if (floatingChatWindow.classList.contains('minimized') && !e.target.closest('.genio-header-buttons')) {
+        floatingChatWindow.classList.remove('minimized');
+        minimizeButton.textContent = '−';
+        minimizeButton.title = 'Minimize';
     }
 });
 
@@ -335,9 +550,9 @@ systemThemeQuery.addEventListener('change', (e) => {
 
     const createTypingIndicator = () => {
         const messageElement = document.createElement('div');
-        messageElement.classList.add('message', 'ai-message', 'typing-indicator-wrapper');
+        messageElement.classList.add('genio-message', 'genio-ai-message', 'genio-typing-indicator-wrapper');
         messageElement.innerHTML = `
-            <div class="message-bubble typing-indicator">
+            <div class="genio-message-bubble genio-typing-indicator">
                 <span></span><span></span><span></span>
             </div>
         `;
@@ -361,12 +576,12 @@ systemThemeQuery.addEventListener('change', (e) => {
 
     const createSkeletonLoader = () => {
         const messageElement = document.createElement('div');
-        messageElement.classList.add('message', 'ai-message', 'skeleton-loader-wrapper');
+        messageElement.classList.add('genio-message', 'genio-ai-message', 'genio-skeleton-loader-wrapper');
         messageElement.innerHTML = `
-            <div class="message-bubble skeleton-loader">
-                <div class="skeleton-line short"></div>
-                <div class="skeleton-line medium"></div>
-                <div class="skeleton-line long"></div>
+            <div class="genio-message-bubble genio-skeleton-loader">
+                <div class="genio-skeleton-line short"></div>
+                <div class="genio-skeleton-line medium"></div>
+                <div class="genio-skeleton-line long"></div>
             </div>
         `;
         return messageElement;
@@ -411,48 +626,14 @@ systemThemeQuery.addEventListener('change', (e) => {
     // Display a message in the chat window
     const displayMessage = (text, sender) => {
         const messageElement = document.createElement('div');
-        messageElement.classList.add('message', `${sender}-message`);
+        messageElement.classList.add('genio-message', `genio-${sender}-message`);
 
         const messageBubble = document.createElement('div');
-        messageBubble.classList.add('message-bubble');
+        messageBubble.classList.add('genio-message-bubble');
         messageBubble.textContent = text;
 
         messageElement.appendChild(messageBubble);
         floatingChatMessages.appendChild(messageElement);
-
-        if (sender === 'ai') {
-            const actionsContainer = document.createElement('div');
-            actionsContainer.classList.add('ai-message-actions');
-            
-            // Copy Button
-            const copyButton = document.createElement('button');
-            copyButton.classList.add('action-icon-button', 'copy-button');
-            copyButton.innerHTML = '📋'; // Clipboard icon
-            copyButton.title = 'Copy to Clipboard';
-            copyButton.dataset.message = text; // Store message text for copying
-            copyButton.addEventListener('click', () => {
-                navigator.clipboard.writeText(copyButton.dataset.message)
-                    .then(() => console.log('Message copied to clipboard!'))
-                    .catch(err => console.error('Failed to copy message: ', err));
-            });
-            actionsContainer.appendChild(copyButton);
-
-            // Regenerate Button
-            const regenerateButton = document.createElement('button');
-            regenerateButton.classList.add('action-icon-button', 'regenerate-button');
-            regenerateButton.innerHTML = '🔄'; // Regenerate icon
-            regenerateButton.title = 'Regenerate Response';
-            // For regenerate, we'd ideally need the original user prompt,
-            // which can be retrieved from chatHistory or passed along.
-            // For now, it's a placeholder.
-            regenerateButton.addEventListener('click', () => {
-                console.log('Regenerate clicked for message:', text);
-                // TODO: Implement regeneration logic (e.g., re-send last user prompt)
-            });
-            actionsContainer.appendChild(regenerateButton);
-
-            messageElement.appendChild(actionsContainer);
-        }
 
         scrollToBottom();
     };
