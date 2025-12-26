@@ -100,8 +100,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'CHAT_MESSAGE') {
         console.log('CHAT_MESSAGE received in background.js from content.js:', message.text);
 
+        let finalPrompt = message.text;
+        // Append instructions based on the selected mode
+        if (message.mode === 'smart') {
+            finalPrompt += "\n\n[System Instruction: Please provide a short, concise, and easy-to-read explanation.]";
+        } else if (message.mode === 'inteli') {
+            finalPrompt += "\n\n[System Instruction: Please provide a detailed and comprehensive answer.]";
+        } else if (message.mode === 'research') {
+            finalPrompt += "\n\n[System Instruction: Please provide a very extensive, in-depth, and thoroughly researched answer covering all aspects.]";
+        }
+
         // Call Pollinations.AI API for response
-        fetchPollinationsAIResponse(message.text).then(aiResponse => {
+        fetchPollinationsAIResponse(finalPrompt).then(aiResponse => {
             // Send AI response back to the content script that sent the message
             if (sender.tab) {
                 chrome.tabs.sendMessage(sender.tab.id, {

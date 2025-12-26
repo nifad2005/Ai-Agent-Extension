@@ -103,6 +103,32 @@ style.textContent = `
         color: #111827;
     }
 
+    .genio-title-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .genio-title-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+    }
+
+    .genio-title-main {
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .genio-title-sub {
+        font-size: 10px;
+        font-weight: 500;
+        color: #6b7280;
+    }
+
     .genio-online-status-dot {
         height: 8px;
         width: 8px;
@@ -223,7 +249,7 @@ style.textContent = `
         background-color: #f9fafb;
         border: 1px solid #e5e7eb;
         border-radius: 12px;
-        padding: 10px;
+        padding: 6px;
         transition: all 0.2s ease;
     }
 
@@ -269,6 +295,44 @@ style.textContent = `
         overflow: hidden;
         flex-shrink: 0;
         margin-left: 8px;
+    }
+
+    .genio-mode-wrapper {
+        position: relative;
+        margin-left: 8px;
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        margin-bottom: 6px; /* Align with center of send button (36px - 24px) / 2 */
+    }
+
+    #genio-mode-selector {
+        appearance: none;
+        -webkit-appearance: none;
+        background-color: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 0 22px 0 10px;
+        font-size: 11px;
+        line-height: 22px;
+        font-weight: 600;
+        color: #4b5563;
+        height: 24px;
+        cursor: pointer;
+        outline: none;
+        font-family: inherit;
+        transition: all 0.2s;
+        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%239ca3af%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        background-size: 8px auto;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    #genio-mode-selector:hover {
+        border-color: #6366f1;
+        color: #4f46e5;
+        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236366f1%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
     }
 
     #floating-send-button::before {
@@ -398,6 +462,10 @@ style.textContent = `
         border-bottom-color: rgba(255, 255, 255, 0.1);
         color: #f9fafb;
     }
+
+    #floating-chat-window[data-theme='dark'] .genio-title-sub {
+        color: #9ca3af;
+    }
     
     #floating-chat-window[data-theme='dark'] .genio-minimize-button {
         color: #9ca3af;
@@ -431,6 +499,17 @@ style.textContent = `
     #floating-chat-window[data-theme='dark'] .genio-input-wrapper:focus-within {
         border-color: #6366f1;
         background-color: #1f2937;
+    }
+
+    #floating-chat-window[data-theme='dark'] #genio-mode-selector {
+        background-color: #374151;
+        border-color: #4b5563;
+        color: #d1d5db;
+    }
+
+    #floating-chat-window[data-theme='dark'] #genio-mode-selector:hover {
+        border-color: #6366f1;
+        color: white;
     }
 
     #floating-chat-window[data-theme='dark'] #floating-chat-input {
@@ -716,8 +795,13 @@ document.head.appendChild(style);
 const floatingChatWindowHTML = `
     <div id="floating-chat-window">
         <div id="floating-chat-titlebar">
-            <span class="genio-online-status-dot"></span>
-            <span class="genio-ai-name">Genio AI Chat</span>
+            <div class="genio-title-container">
+                <span class="genio-online-status-dot"></span>
+                <div class="genio-title-text">
+                    <span class="genio-title-main">Genio</span>
+                    <span class="genio-title-sub">as website agent</span>
+                </div>
+            </div>
             <div class="genio-header-buttons">
                 <button class="genio-minimize-button" title="Minimize">−</button>
                 <button class="genio-close-button" title="Close">×</button>
@@ -729,6 +813,13 @@ const floatingChatWindowHTML = `
         <div id="floating-chat-input-container">
             <div class="genio-input-wrapper">
                 <textarea id="floating-chat-input" placeholder="Type your message..." rows="1"></textarea>
+                <div class="genio-mode-wrapper">
+                    <select id="genio-mode-selector" title="Select Answer Length">
+                        <option value="smart">Smart</option>
+                        <option value="inteli">Inteli</option>
+                        <option value="research">Research</option>
+                    </select>
+                </div>
                 <button id="floating-send-button">Send</button>
             </div>
         </div>
@@ -820,6 +911,7 @@ systemThemeQuery.addEventListener('change', (e) => {
     const floatingSendButton = document.getElementById('floating-send-button');
     const floatingChatContextPreview = document.getElementById('floating-chat-context-preview');
     const floatingChatSuggestions = document.getElementById('floating-chat-suggestions');
+    const genioModeSelector = document.getElementById('genio-mode-selector');
 
     let activeContexts = [];
 
@@ -1045,6 +1137,7 @@ systemThemeQuery.addEventListener('change', (e) => {
     const sendMessage = async (text = null) => {
         const inputVal = floatingChatInput.value.trim();
         const userQuery = text || inputVal;
+        const selectedMode = genioModeSelector.value;
 
         if (!userQuery && activeContexts.length === 0) return;
         
@@ -1089,7 +1182,7 @@ systemThemeQuery.addEventListener('change', (e) => {
         }, 10000); // 10 seconds timeout
 
         // Send user message to background script for AI processing
-        chrome.runtime.sendMessage({ type: 'CHAT_MESSAGE', text: messageToSend }, (response) => {
+        chrome.runtime.sendMessage({ type: 'CHAT_MESSAGE', text: messageToSend, mode: selectedMode }, (response) => {
             clearTimeout(responseTimeout); // Clear the timeout if a response is received
 
             if (chrome.runtime.lastError) {
