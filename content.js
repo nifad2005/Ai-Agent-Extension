@@ -181,6 +181,11 @@ style.textContent = `
         color: #111827;
     }
 
+    .genio-clear-button:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+        color: #ef4444;
+    }
+
     .genio-close-button:hover {
         background-color: #ef4444;
         color: white;
@@ -476,6 +481,11 @@ style.textContent = `
         color: white;
     }
 
+    #floating-chat-window[data-theme='dark'] .genio-clear-button:hover {
+        background: rgba(255,255,255,0.1);
+        color: #ef4444;
+    }
+
     #floating-chat-window[data-theme='dark'] .genio-close-button:hover {
         background-color: #ef4444;
         color: white;
@@ -759,6 +769,106 @@ style.textContent = `
         background-color: rgba(255,255,255,0.1);
     }
 
+    #floating-chat-window[data-theme='dark'] .genio-inline-code {
+        background-color: rgba(255,255,255,0.1);
+        color: #f472b6;
+    }
+
+    /* Extended Markdown Styles */
+    .genio-message-bubble h1, 
+    .genio-message-bubble h2, 
+    .genio-message-bubble h3 {
+        margin-top: 12px;
+        margin-bottom: 6px;
+        font-weight: 700;
+        line-height: 1.3;
+        color: inherit;
+    }
+    .genio-message-bubble h1 { font-size: 1.4em; }
+    .genio-message-bubble h2 { font-size: 1.2em; }
+    .genio-message-bubble h3 { font-size: 1.1em; }
+    
+    .genio-message-bubble ul, 
+    .genio-message-bubble ol {
+        margin: 8px 0;
+        padding-left: 24px;
+    }
+    
+    .genio-message-bubble li {
+        margin-bottom: 4px;
+    }
+    
+    .genio-message-bubble blockquote {
+        border-left: 3px solid rgba(0,0,0,0.2);
+        margin: 8px 0;
+        padding-left: 12px;
+        font-style: italic;
+        opacity: 0.85;
+    }
+
+    .genio-message-bubble a {
+        color: inherit;
+        text-decoration: underline;
+        opacity: 0.9;
+    }
+
+    .genio-message-bubble hr {
+        border: none;
+        border-top: 1px solid rgba(0,0,0,0.1);
+        margin: 16px 0;
+    }
+
+    /* Markdown Tables */
+    .genio-table-wrapper {
+        overflow-x: auto;
+        margin: 10px 0;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .genio-markdown-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        text-align: left;
+    }
+    
+    .genio-markdown-table th,
+    .genio-markdown-table td {
+        padding: 8px 12px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .genio-markdown-table th {
+        background-color: #f9fafb;
+        font-weight: 600;
+        color: #374151;
+    }
+    
+    .genio-markdown-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Dark mode table */
+    #floating-chat-window[data-theme='dark'] .genio-table-wrapper {
+        border-color: rgba(255,255,255,0.1);
+    }
+    
+    #floating-chat-window[data-theme='dark'] .genio-markdown-table th {
+        background-color: rgba(255,255,255,0.05);
+        color: #e5e7eb;
+        border-bottom-color: rgba(255,255,255,0.1);
+    }
+    
+    #floating-chat-window[data-theme='dark'] .genio-markdown-table td {
+        border-bottom-color: rgba(255,255,255,0.1);
+        color: #d1d5db;
+    }
+
+    #floating-chat-window[data-theme='dark'] .genio-message-bubble hr {
+        border-top-color: rgba(255,255,255,0.1);
+    }
+
     /* Selection Popup */
     #genio-selection-popup {
         position: absolute;
@@ -803,6 +913,7 @@ const floatingChatWindowHTML = `
                 </div>
             </div>
             <div class="genio-header-buttons">
+                <button class="genio-clear-button" title="Clear History">🗑</button>
                 <button class="genio-minimize-button" title="Minimize">−</button>
                 <button class="genio-close-button" title="Close">×</button>
             </div>
@@ -1005,6 +1116,12 @@ systemThemeQuery.addEventListener('change', (e) => {
 
     let chatHistory = [];
 
+    // Clear Chat Logic
+    document.querySelector('.genio-clear-button').addEventListener('click', () => {
+        floatingChatMessages.innerHTML = '';
+        chatHistory = [];
+    });
+
     // Load chat history from storage (specific to this tab/content script for now)
     // For cross-tab/persistent history, background script would be needed.
     // For simplicity, this history will reset on page reload.
@@ -1091,6 +1208,139 @@ systemThemeQuery.addEventListener('change', (e) => {
     };
     // --- End Combined Loading Indicator Management ---
 
+    // Markdown Formatter
+    const formatAIResponse = (text) => {
+        // 1. Escape HTML to prevent XSS (basic)
+        let safeText = text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+        // 2. Split by code blocks to avoid formatting inside code
+        // Regex captures the code block so it's included in the split array
+        const parts = safeText.split(/(```[\s\S]*?```)/g);
+
+        return parts.map(part => {
+            if (part.startsWith('```')) {
+                // Process Code Block
+                const match = part.match(/```(\w+)?\n?([\s\S]*?)```/);
+                if (match) {
+                    const lang = match[1] || 'Code';
+                    const code = match[2];
+                    return `<div class="genio-code-block">
+                                <div class="genio-code-header">
+                                    <span class="genio-code-lang">${lang}</span>
+                                    <button class="genio-copy-code-btn">Copy</button>
+                                </div>
+                                <pre><code class="genio-code-content">${code}</code></pre>
+                            </div>`;
+                }
+                return part;
+            } else {
+                // Process Markdown in text
+                let formatted = part;
+                
+                // Headers
+                formatted = formatted.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+                formatted = formatted.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+                formatted = formatted.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+
+                // Horizontal Rule
+                formatted = formatted.replace(/^---$/gm, '<hr>');
+
+                // Blockquotes
+                formatted = formatted.replace(/^> (.*$)/gm, '<blockquote>$1</blockquote>');
+
+                // Unordered Lists
+                formatted = formatted.replace(/(?:^\s*[-*+]\s+.*(?:\r?\n|$))+/gm, (match) => {
+                    const items = match.trim().split(/\r?\n/);
+                    const listItems = items.map(item => `<li>${item.replace(/^\s*[-*+]\s+/, '')}</li>`).join('');
+                    return `<ul>${listItems}</ul>`;
+                });
+
+                // Ordered Lists
+                formatted = formatted.replace(/(?:^\s*\d+\.\s+.*(?:\r?\n|$))+/gm, (match) => {
+                    const items = match.trim().split(/\r?\n/);
+                    const listItems = items.map(item => `<li>${item.replace(/^\s*\d+\.\s+/, '')}</li>`).join('');
+                    return `<ol>${listItems}</ol>`;
+                });
+
+                // Bold (**text**)
+                formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                
+                // Italic (*text*)
+                formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                
+                // Inline Code (`text`)
+                formatted = formatted.replace(/`([^`]+)`/g, '<code class="genio-inline-code">$1</code>');
+
+                // Links text
+                formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+                
+                // Table formatting
+                // Regex to identify a markdown table structure
+                const tableRegex = /((?:\|.*?\|\s*(?:\r?\n|\r))+\|[-:| ]+\|\s*(?:\r?\n|\r)(?:\|.*?\|\s*(?:\r?\n|\r|$))*)/g;
+                
+                formatted = formatted.replace(tableRegex, (match) => {
+                    const rows = match.trim().split(/\r?\n/).map(r => r.trim()).filter(r => r);
+                    if (rows.length < 2) return match;
+                    
+                    // Find separator row (contains only | - : space)
+                    let separatorIndex = -1;
+                    for (let i = 0; i < rows.length; i++) {
+                        const content = rows[i].replace(/^\||\|$/g, '');
+                        if (/^[-:| ]+$/.test(content) && content.includes('-')) {
+                            separatorIndex = i;
+                            break;
+                        }
+                    }
+                    
+                    if (separatorIndex === -1) return match;
+
+                    let html = '<div class="genio-table-wrapper"><table class="genio-markdown-table">';
+                    
+                    // Helper to process row string into cells
+                    const processRow = (row) => {
+                        return row.replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+                    };
+
+                    // Header (Rows before separator)
+                    html += '<thead>';
+                    for (let i = 0; i < separatorIndex; i++) {
+                        const headerCells = processRow(rows[i]);
+                        html += '<tr>';
+                        headerCells.forEach(cell => {
+                            html += `<th>${cell}</th>`;
+                        });
+                        html += '</tr>';
+                    }
+                    html += '</thead>';
+                    
+                    // Body (Rows after separator)
+                    html += '<tbody>';
+                    for (let i = separatorIndex + 1; i < rows.length; i++) {
+                        const cells = processRow(rows[i]);
+                        html += '<tr>';
+                        cells.forEach(cell => {
+                            html += `<td>${cell}</td>`;
+                        });
+                        html += '</tr>';
+                    }
+                    html += '</tbody></table></div>';
+                    return html;
+                });
+
+                // Newlines to <br>
+                formatted = formatted.replace(/\n/g, '<br>');
+                
+                // Cleanup <br> after block elements to avoid extra spacing
+                formatted = formatted.replace(/(<\/(h[1-6]|ul|ol|blockquote|div|hr)>)<br>/g, '$1');
+                
+                return formatted;
+            }
+        }).join('');
+    };
+
     // Display a message in the chat window
     const displayMessage = (text, sender, isHtml = false) => {
         const messageElement = document.createElement('div');
@@ -1100,6 +1350,22 @@ systemThemeQuery.addEventListener('change', (e) => {
         messageBubble.classList.add('genio-message-bubble');
         if (isHtml) {
             messageBubble.innerHTML = text;
+        } else if (sender === 'ai') {
+            // Apply formatting for AI messages
+            messageBubble.innerHTML = formatAIResponse(text);
+            
+            // Add event listeners for copy buttons inside this message
+            messageBubble.querySelectorAll('.genio-copy-code-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const codeBlock = e.target.closest('.genio-code-block');
+                    const code = codeBlock.querySelector('code').innerText;
+                    navigator.clipboard.writeText(code).then(() => {
+                        const originalText = e.target.textContent;
+                        e.target.textContent = 'Copied!';
+                        setTimeout(() => e.target.textContent = originalText, 2000);
+                    });
+                });
+            });
         } else {
             messageBubble.textContent = text;
         }
